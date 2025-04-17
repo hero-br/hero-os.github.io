@@ -1,2 +1,2 @@
 # hero-os.github.io
-Hero OS Linux
+https://hero-os.github.io
