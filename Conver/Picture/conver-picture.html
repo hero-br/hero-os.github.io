@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Convertidor de Imágenes</title>
+  <style>
+    body {
+      background: linear-gradient(135deg, #f8fafc 0%, #e0e7ef 100%);
+      font-family: 'Segoe UI', Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      background: #fff;
+      max-width: 420px;
+      margin: auto;
+      padding: 32px 28px 24px 28px;
+      border-radius: 18px;
+      box-shadow: 0 8px 32px rgba(60, 60, 120, 0.15);
+      text-align: center;
+    }
+    h2 {
+      color: #2b3a55;
+      margin-bottom: 18px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+    input[type="file"] {
+      margin-bottom: 18px;
+      border: none;
+      font-size: 1em;
+    }
+    label {
+      font-size: 1em;
+      color: #3a4a6b;
+      margin-bottom: 6px;
+      display: block;
+    }
+    select {
+      margin-bottom: 18px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid #cfd8dc;
+      font-size: 1em;
+      background: #f4f7fa;
+      color: #2b3a55;
+      outline: none;
+      transition: border 0.2s;
+    }
+    select:focus {
+      border: 1.5px solid #6c63ff;
+    }
+    button {
+      padding: 12px 32px;
+      background: linear-gradient(90deg, #6c63ff 0%, #48c6ef 100%);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
+      font-weight: 500;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(76, 110, 245, 0.08);
+      transition: background 0.2s, transform 0.1s;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: linear-gradient(90deg, #48c6ef 0%, #6c63ff 100%);
+      transform: translateY(-2px) scale(1.03);
+    }
+    #result {
+      margin-top: 18px;
+      font-size: 1em;
+    }
+    #result a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 10px 22px;
+      background: #6c63ff;
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+    #result a:hover {
+      background: #48c6ef;
+    }
+    #preview {
+      margin-top: 18px;
+      max-width: 100%;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(60, 60, 120, 0.08);
+      display: none;
+    }
+    @media (max-width: 500px) {
+      .container {
+        padding: 18px 6vw 14px 6vw;
+      }
+      h2 {
+        font-size: 1.2em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Convertidor de Imágenes</h2>
+    <input type="file" id="imageInput" accept="image/*"><br>
+    <label for="formatSelect">Formato de salida:</label>
+    <select id="formatSelect">
+      <option value="png">PNG</option>
+      <option value="jpeg">JPEG</option>
+      <option value="webp">WEBP</option>
+      <option value="bmp">BMP</option>
+    </select><br>
+    <button onclick="convertImage()">Convertir</button>
+    <div id="result"></div>
+    <img id="preview" />
+  </div>
+  <script>
+    function convertImage() {
+      const input = document.getElementById('imageInput');
+      const file = input.files[0];
+      const resultDiv = document.getElementById('result');
+      const preview = document.getElementById('preview');
+      const format = document.getElementById('formatSelect').value;
+      resultDiv.innerHTML = '';
+      preview.style.display = 'none';
+
+      if (!file) {
+        resultDiv.innerHTML = '<span style="color:red;">Selecciona una imagen primero.</span>';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+
+          canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = file.name.replace(/\.[^/.]+$/, "") + "." + format;
+            a.textContent = "Descargar imagen " + format.toUpperCase();
+            resultDiv.appendChild(a);
+
+            // Mostrar vista previa
+            preview.src = url;
+            preview.style.display = 'block';
+          }, 'image/' + format);
+        };
+        img.onerror = function() {
+          resultDiv.innerHTML = '<span style="color:red;">No se pudo cargar la imagen.</span>';
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+  </script>
+</body>
+</html>
